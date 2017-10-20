@@ -1,4 +1,4 @@
-基于mailman,Postfix,Apache的Mailinglist系统搭建2
+基于mailman,Postfix,Apache的Mailinglist系统搭建
 
 目标实现Mailinglist邮件订阅转发等功能
 
@@ -206,6 +206,8 @@ crontab -u mailman crontab.in
 新建list
 /usr/lib/mailman/bin/newlist mailman
 
+/usr/bin/newaliases
+
 mailman相关调试用/usr/lib/mailman/bin/check_perms　-f根据报错处理
 
 配置完成将各种服务加入开机自启动。确保ｄｎｓ可以解析到你的域名
@@ -215,6 +217,22 @@ mailman相关调试用/usr/lib/mailman/bin/check_perms　-f根据报错处理
 http://mailinglist.xxx.com/mailman/listinfo
 
 进行邮件列表的创建，订阅，成员管理等，详见mailman用户手册。
+
+mailman实用的命令，以下是最重要的几个命令。
+
+sudo newlist                     //创建一个新的列表
+sudo rmlist "listname"           //删除listname这个列表
+sudo list_lists                  //列出所有的列表
+sudo list_members "listname"     //列出listname这个列表所有的订阅用户
+
+//将user@example.com添加到listname这个列表
+echo "user@example.com" | sudo add_members -w y -r - "listname" 
+  
+sudo add_members -r file "listname"               //将file文件中的邮箱地址添加到listname这个列表中
+sudo remove_members "listname" "user@example.com"  //将user@example.com从listname这个列表中删除
+sudo mmsitepass                                    //设置网页管理界面的密码
+
+
 
 
 ref:
