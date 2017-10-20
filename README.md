@@ -2,12 +2,9 @@
 
 目标实现Mailinglist邮件订阅转发等功能
 
-
-Centos 7 OpenSSl apache Mysql
-postfix dovecot openssl Apache mailman
+OpenSSL Postfix Dovecot Apache mailman
 
 1.安装部署邮件服务器Postfix
-
 
 生成ssl证书
 1、生成证书的脚本代码
@@ -42,8 +39,6 @@ rm -rf $(hostname).*
 
 2、Postfix安装及配置
 yum -y install postfix
-centos 7 默认已经安装postfix最新版
-
 
 #vi /etc/postfix/main.cf
 
@@ -86,8 +81,8 @@ smtpd_sasl_local_domain = $myhostname
 smtpd_sasl_path = private/auth
 smtpd_sasl_security_options = noanonymous
 smtpd_sasl_type = dovecot
-smtpd_tls_cert_file = /etc/pki/tls/certs/mailinglist.tinno-sh.com.crt
-smtpd_tls_key_file = /etc/pki/tls/certs/mailinglist.tinno-sh.com.key
+smtpd_tls_cert_file = /etc/pki/tls/certs/mailinglist.xxx.com.crt
+smtpd_tls_key_file = /etc/pki/tls/certs/mailinglist.xxx.com.key
 smtpd_tls_session_cache_database = btree:/etc/postfix/smtpd_scache
 smtpd_use_tls = yes
 unknown_local_recipient_reject_code = 550
@@ -100,8 +95,9 @@ vi /etc/postfix/master.cf
 smtps  inet n  -  n  -  -  smtpd
  -o syslog_name=postfix/smtps
  -o smtpd_tls_wrappermode=yes
+ 
 ======postfix与mailman交互脚本======
-
+# line end: uncomment
 mailman   unix  -       n       n       -       -       pipe
   flags=FR user=list argv=/usr/lib/mailman/bin/postfix-to-mailman.py
   ${nexthop} ${user}
@@ -151,8 +147,7 @@ ssl = yes
 ssl_cert = </etc/pki/tls/certs/$(hostname).crt
 ssl_key = </etc/pki/tls/certs/$(hostname).key
 
-
-
+==============
 
 systemctl restart postfix
 systemctl enable postfix
@@ -161,6 +156,7 @@ systemctl enable dovecot
 
 
 调试邮件服务器:
+确保ｄｎｓ可以解析到你的域名 ,　本地调试可以修改ｈｏｓｔ文件
 echo “hello”|mail user@mailinglist.xxx.com
 cat /var/log/maillog
 netstat -ant
@@ -168,6 +164,8 @@ service postfix status
 根据响应报错调整参数
 
 最后在本地使用客户端Thunderbird连接到服务器对外发送邮件测试,qq邮箱收信成功，服务器内部用户收发邮件成功。
+个别服务器收不到邮件，请联系服务器管理人员将你的域名添加到对方信任列表。
+
 添加和删除postfix用户，基于系统用户
 useradd -s /sbin/nologin user1
 passwd user1
@@ -179,6 +177,10 @@ userdel user1
 yum install httpd
 
 安装mailman
+yum install mailman
+
+设置mailman与Postfix Apache的交互
+
 #vi  /etc/mailman/mm_cfg.py
 
 修改和添加
@@ -196,8 +198,6 @@ RedirectMatch ^/mailman[/]*$ http://mailinglist.xxx.com/mailman/listinfo
 设置网站管理密码
 /usr/lib/mailman/bin/mmsitepass password
 
-
-检查配置
 
 导入crontab
 cd /usr/lib/mailman/cron
