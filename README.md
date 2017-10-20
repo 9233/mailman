@@ -1,4 +1,4 @@
-基于mailman,Postfix,Apache的Mailinglist系统搭建
+基于mailman,Postfix,Apache的Mailinglist系统搭建2
 
 目标实现Mailinglist邮件订阅转发等功能
 
